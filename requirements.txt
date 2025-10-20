@@ -1,0 +1,20 @@
+# Core Data Science & Numerics
+pandas
+numpy
+
+# Machine Learning
+scikit-learn
+xgboost
+
+# Financial Data & Backtesting
+yfinance
+vectorbt
+mplfinance
+
+# Automation & MLOps
+snakemake
+wandb
+pyyaml
+
+# Testing Framework
+pytest

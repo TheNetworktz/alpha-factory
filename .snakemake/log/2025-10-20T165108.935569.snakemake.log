@@ -1,0 +1,43 @@
+Assuming unrestricted shared filesystem usage.
+host: DESKTOP-CFH1CQT
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                   count
+------------------  -------
+synthesize_dataset        1
+total                     1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 16:51:09 2025]
+localrule synthesize_dataset:
+    output: data/processed/master_m15_features.csv
+    jobid: 0
+    reason: Forced execution
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+RuleException:
+CalledProcessError in file "D:\AI_PROJECTS\alpha-factory\Snakefile", line 15:
+Command 'python -m src.data.make_dataset' returned non-zero exit status 1.
+[Mon Oct 20 16:51:12 2025]
+Error in rule synthesize_dataset:
+    message: None
+    jobid: 0
+    output: data/processed/master_m15_features.csv
+    shell:
+        python -m src.data.make_dataset
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon Oct 20 16:51:12 2025]
+Error in rule synthesize_dataset:
+    message: None
+    jobid: 0
+    output: data/processed/master_m15_features.csv
+    shell:
+        python -m src.data.make_dataset
+        (command exited with non-zero exit code)
+Complete log(s): D:\AI_PROJECTS\alpha-factory\.snakemake\log\2025-10-20T165108.935569.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import List, Dict
 
 # Use an absolute import from the project's 'src' directory.
-# This works because we installed the project in editable mode with 'pip install -e .'
 from src.features import build_features
 
 # --- Configuration ---
@@ -37,20 +36,18 @@ def download_data(assets: List[str], timeframes: List[str], start: str, end: str
             period = None
 
             if tf == "15m":
-                # 15m data is only available for the last 60 days.
                 start_date = None
                 end_date = None
                 period = "60d"
             elif tf == "1h":
-                # 1h data is available for the last 730 days.
                 start_date = None
                 end_date = None
                 period = "730d"
             elif tf == "4h":
-                # yfinance does not support '4h'.
                 print(f"    ! Warning: yfinance does not support '4h' interval. Skipping.")
                 continue
             
+            # Use grouping to handle yfinance's multi-level column output
             data = yf.download(
                 tickers=asset,
                 start=start_date,
@@ -59,6 +56,7 @@ def download_data(assets: List[str], timeframes: List[str], start: str, end: str
                 interval=tf,
                 auto_adjust=True,
                 progress=False,
+                group_by='ticker'
             )
             
             if data.empty:
@@ -81,10 +79,18 @@ def synthesize_features():
     if not base_df_path.exists():
         raise FileNotFoundError(f"Base data file not found at {base_df_path}. Run download_data first.")
     
-    # --- THIS IS THE FIX ---
-    # Use index_col=0 to specify that the first column in the CSV is the index.
-    # yfinance saves the Datetime index as an unnamed first column.
-    df = pd.read_csv(base_df_path, index_col=0, parse_dates=True)
+    # --- THIS IS THE FINAL FIX ---
+    # Based on the actual file content, we specify:
+    # header=[0, 1]: Use the first two rows as a multi-level header.
+    # index_col=0: Use the first column as the index.
+    df = pd.read_csv(base_df_path, header=[0, 1], index_col=0)
+    
+    # The multi-level header creates tuples for column names, e.g., ('Close', 'SPY').
+    # We will flatten this to a single-level header for simplicity.
+    df.columns = df.columns.get_level_values(0)
+    
+    # Now, the index contains the correct datetime strings. Convert it.
+    df.index = pd.to_datetime(df.index, utc=True)
     
     # Let's give the index a name for clarity
     df.index.name = 'Datetime'

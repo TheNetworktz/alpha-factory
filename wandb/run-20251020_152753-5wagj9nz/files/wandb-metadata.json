@@ -1,0 +1,40 @@
+{
+  "os": "Windows-11-10.0.26100-SP0",
+  "python": "CPython 3.13.7",
+  "startedAt": "2025-10-20T19:27:53.386366Z",
+  "program": "D:\\AI_PROJECTS\\alpha-factory\\src\\models\\train_model.py",
+  "codePath": "src\\models\\train_model.py",
+  "codePathLocal": "src\\models\\train_model.py",
+  "git": {
+    "remote": "https://github.com/TheNetworktz/alpha-factory.git",
+    "commit": "20e42df8dd89997380988daeb4d9f9a6f66afaf2"
+  },
+  "email": "tzsolutionsbusiness@gmail.com",
+  "root": "D:\\AI_PROJECTS\\alpha-factory",
+  "host": "DESKTOP-CFH1CQT",
+  "executable": "D:\\AI_PROJECTS\\alpha-factory\\venv\\Scripts\\python.exe",
+  "cpu_count": 32,
+  "cpu_count_logical": 64,
+  "gpu": "NVIDIA GeForce RTX 3090 Ti",
+  "gpu_count": 1,
+  "disk": {
+    "/": {
+      "total": "8001299673088",
+      "used": "629094105088"
+    }
+  },
+  "memory": {
+    "total": "274711601152"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 3090 Ti",
+      "memoryTotal": "25757220864",
+      "cudaCores": 10752,
+      "architecture": "Ampere",
+      "uuid": "GPU-eca7ce5e-8e7f-2981-3779-7f0a6661a2a8"
+    }
+  ],
+  "cudaVersion": "13.0",
+  "writerId": "rnvgpbze82qvfas9wy9q4f3u0jkrbccr"
+}

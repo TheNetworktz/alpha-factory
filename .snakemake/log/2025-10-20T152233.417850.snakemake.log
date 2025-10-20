@@ -1,0 +1,37 @@
+Assuming unrestricted shared filesystem usage.
+host: DESKTOP-CFH1CQT
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job             count
+------------  -------
+all                 1
+run_backtest        1
+total               2
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:22:33 2025]
+localrule run_backtest:
+    input: models/dummy_model.joblib
+    output: reports/dummy_backtest_report.html
+    jobid: 1
+    reason: Missing output files: reports/dummy_backtest_report.html
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+Waiting at most 5 seconds for missing files:
+reports/dummy_backtest_report.html (missing locally)
+MissingOutputException in rule run_backtest in file "D:\AI_PROJECTS\alpha-factory\Snakefile", line 36:
+Job 1  completed successfully, but some output files are missing. Missing files after 5 seconds. This might be due to filesystem latency. If that is the case, consider to increase the wait time with --latency-wait:
+reports/dummy_backtest_report.html (missing locally, parent dir not present)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon Oct 20 15:22:38 2025]
+Error in rule run_backtest:
+    message: None
+    jobid: 1
+    input: models/dummy_model.joblib
+    output: reports/dummy_backtest_report.html
+Complete log(s): D:\AI_PROJECTS\alpha-factory\.snakemake\log\2025-10-20T152233.417850.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

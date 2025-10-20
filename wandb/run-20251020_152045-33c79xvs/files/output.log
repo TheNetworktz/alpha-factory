@@ -1,0 +1,3 @@
+[34m[1mwandb[0m: [33mWARNING[0m The get_url method is deprecated and will be removed in a future release. Please use `run.url` instead.
+--- W&B Run Initialized. View at: https://wandb.ai/tzsolutionsbusiness-tzsolutions/alpha-factory-test/runs/33c79xvs ---
+--- Success: Created dummy model file at models\dummy_model.joblib ---

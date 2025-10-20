@@ -1,0 +1,38 @@
+Assuming unrestricted shared filesystem usage.
+host: DESKTOP-CFH1CQT
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job             count
+------------  -------
+all                 1
+run_backtest        1
+train_model         1
+total               3
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:17:16 2025]
+localrule train_model:
+    input: data/processed/dummy_data.csv
+    output: models/dummy_model.joblib
+    jobid: 2
+    reason: Missing output files: models/dummy_model.joblib
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+RuleException:
+CalledProcessError in file "D:\AI_PROJECTS\alpha-factory\Snakefile", line 30:
+Command 'python src/models/train_model.py' returned non-zero exit status 3221225786.
+[Mon Oct 20 15:17:55 2025]
+Error in rule train_model:
+    message: None
+    jobid: 2
+    input: data/processed/dummy_data.csv
+    output: models/dummy_model.joblib
+    shell:
+        python src/models/train_model.py
+        (command exited with non-zero exit code)
+Terminating processes on user request, this might take some time.
+Complete log(s): D:\AI_PROJECTS\alpha-factory\.snakemake\log\2025-10-20T151716.634001.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

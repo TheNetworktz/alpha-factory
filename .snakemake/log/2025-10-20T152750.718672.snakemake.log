@@ -1,0 +1,61 @@
+Assuming unrestricted shared filesystem usage.
+host: DESKTOP-CFH1CQT
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                   count
+------------------  -------
+all                       1
+run_backtest              1
+synthesize_dataset        1
+train_model               1
+total                     4
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:27:50 2025]
+localrule synthesize_dataset:
+    output: data/processed/dummy_data.csv
+    jobid: 3
+    reason: Forced execution
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+[Mon Oct 20 15:27:51 2025]
+Finished jobid: 3 (Rule: synthesize_dataset)
+1 of 4 steps (25%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:27:51 2025]
+localrule train_model:
+    input: data/processed/dummy_data.csv
+    output: models/dummy_model.joblib
+    jobid: 2
+    reason: Forced execution
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+[Mon Oct 20 15:27:57 2025]
+Finished jobid: 2 (Rule: train_model)
+2 of 4 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:27:57 2025]
+localrule run_backtest:
+    input: models/dummy_model.joblib
+    output: reports/dummy_backtest_report.html
+    jobid: 1
+    reason: Forced execution
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+[Mon Oct 20 15:27:57 2025]
+Finished jobid: 1 (Rule: run_backtest)
+3 of 4 steps (75%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:27:57 2025]
+localrule all:
+    input: reports/dummy_backtest_report.html
+    jobid: 0
+    reason: Forced execution
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+[Mon Oct 20 15:27:57 2025]
+Finished jobid: 0 (Rule: all)
+4 of 4 steps (100%) done
+Complete log(s): D:\AI_PROJECTS\alpha-factory\.snakemake\log\2025-10-20T152750.718672.snakemake.log

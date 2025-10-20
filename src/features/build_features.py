@@ -26,9 +26,9 @@ def calculate_time_features(df: pd.DataFrame) -> pd.DataFrame:
     ny_pm_open = pd.to_datetime("13:30").time()
     market_close = pd.to_datetime("16:00").time()
 
-    london_killzone_start = pd.to_datetime("02:00").time()
-    london_killzone_end = pd.to_datetime("05:00").time()
-    ny_killzone_start = pd.to_datetime("08:30").time()
+    london_killzone_start = pd.to_datetime("2:00").time()
+    london_killzone_end = pd.to_datetime("5:00").time()
+    ny_killzone_start = pd.to_datetime("8:30").time()
     ny_killzone_end = pd.to_datetime("11:00").time()
 
     time_of_day = df_copy.index.time
@@ -66,21 +66,13 @@ def calculate_time_based_liquidity(df: pd.DataFrame, timeframe: str) -> pd.DataF
     if not daily_data_path.exists():
         raise FileNotFoundError(f"Daily data file not found at {daily_data_path}. Cannot calculate PDH/PDL.")
         
-    # --- THIS IS THE FIX ---
-    # Load the file, telling pandas to use the first two rows as a multi-level header.
     df_daily = pd.read_csv(daily_data_path, header=[0, 1], index_col=0)
-    
-    # The debug output showed the OHLC names are on the *second* level (index 1) of the header.
     df_daily.columns = df_daily.columns.get_level_values(1)
-    
-    # Standardize all column names to be lowercase to prevent case-sensitivity errors.
     df_daily.columns = [col.lower() for col in df_daily.columns]
     
-    # Now that the DataFrame is clean, process the index.
     df_daily.index = pd.to_datetime(df_daily.index, utc=True)
     df_daily.index.name = 'Datetime'
     
-    # Now we can safely access the lowercase 'high' and 'low' columns.
     df_daily['PDH'] = df_daily['high'].shift(1)
     df_daily['PDL'] = df_daily['low'].shift(1)
 
@@ -104,11 +96,75 @@ def calculate_time_based_liquidity(df: pd.DataFrame, timeframe: str) -> pd.DataF
 
 def find_htf_pois(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
     """
-    Identifies Higher-Timeframe Points of Interest (FVGs, Order Blocks).
+    Identifies Higher-Timeframe Points of Interest (FVGs) and checks if the
+    lower-timeframe price is currently inside one.
     """
     print(f"    - Finding POIs on {timeframe}...")
-    df[f'_{timeframe}_in_poi'] = 0
-    return df
+    
+    if timeframe.lower() not in ["h1", "d1"]:
+        print(f"    ! Warning: POI detection for timeframe '{timeframe}' not yet implemented. Skipping.")
+        return df
+
+    # --- THIS IS THE FIX ---
+    # The filenames from yfinance use '1h' and '1d', but our parameters are 'h1' and 'd1'.
+    # This logic corrects the filename before trying to open it.
+    htf_filename = timeframe.lower()
+    if htf_filename == "h1":
+        htf_filename = "1h"
+    elif htf_filename == "d1":
+        htf_filename = "1d"
+    
+    htf_data_path = Path(f"data/raw/SPY_{htf_filename}.csv")
+    if not htf_data_path.exists():
+        raise FileNotFoundError(f"HTF data file not found at {htf_data_path}.")
+        
+    df_htf = pd.read_csv(htf_data_path, header=[0, 1], index_col=0)
+    df_htf.columns = df_htf.columns.get_level_values(1)
+    df_htf.columns = [col.lower() for col in df_htf.columns]
+    df_htf.index = pd.to_datetime(df_htf.index, utc=True)
+
+    df_htf['prev_low'] = df_htf['low'].shift(1)
+    df_htf['next_high'] = df_htf['high'].shift(-1)
+    df_htf['prev_high'] = df_htf['high'].shift(1)
+    df_htf['next_low'] = df_htf['low'].shift(-1)
+
+    is_bullish_fvg = df_htf['prev_low'] < df_htf['next_high']
+    is_bearish_fvg = df_htf['prev_high'] > df_htf['next_low']
+
+    df_htf['bull_fvg_top'] = df_htf['prev_low']
+    df_htf['bull_fvg_bottom'] = df_htf['next_high']
+    df_htf['bear_fvg_top'] = df_htf['prev_high']
+    df_htf['bear_fvg_bottom'] = df_htf['next_low']
+
+    merged_df = pd.merge_asof(
+        df.sort_index(),
+        df_htf[['bull_fvg_top', 'bull_fvg_bottom', 'bear_fvg_top', 'bear_fvg_bottom']].sort_index(),
+        left_index=True,
+        right_index=True,
+        direction='backward'
+    )
+
+    inside_bullish_fvg = (
+        (merged_df['low'] < merged_df['bull_fvg_top']) &
+        (merged_df['high'] > merged_df['bull_fvg_bottom'])
+    )
+    inside_bearish_fvg = (
+        (merged_df['low'] < merged_df['bear_fvg_top']) &
+        (merged_df['high'] > merged_df['bear_fvg_bottom'])
+    )
+
+    conditions = [
+        inside_bullish_fvg,
+        inside_bearish_fvg
+    ]
+    choices = [1, -1]
+    merged_df[f'f_{timeframe}_in_fvg'] = np.select(conditions, choices, default=0)
+
+    df_final = df.copy()
+    df_final[f'f_{timeframe}_in_fvg'] = merged_df[f'f_{timeframe}_in_fvg']
+    
+    return df_final
+
 
 def calculate_smt_divergence(df_main: pd.DataFrame, df_correlated: pd.DataFrame) -> pd.DataFrame:
     """

@@ -12,7 +12,7 @@ vectorbt
 mplfinance
 
 # Automation & MLOps
-snakemake
+snakemake>=8.0
 wandb
 pyyaml
 

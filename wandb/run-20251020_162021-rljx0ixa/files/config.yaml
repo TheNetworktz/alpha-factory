@@ -1,0 +1,50 @@
+_wandb:
+    value:
+        cli_version: 0.22.2
+        e:
+            5e4gz1tmvy8n67i6we75qnzh682flx2l:
+                cpu_count: 32
+                cpu_count_logical: 64
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "8001299673088"
+                        used: "629096443904"
+                email: tzsolutionsbusiness@gmail.com
+                executable: D:\AI_PROJECTS\alpha-factory\venv\Scripts\python.exe
+                git:
+                    commit: 85c2126a43d3e99ba18886aa1db6284bc98c4d97
+                    remote: https://github.com/TheNetworktz/alpha-factory.git
+                gpu: NVIDIA GeForce RTX 3090 Ti
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Ampere
+                      cudaCores: 10752
+                      memoryTotal: "25757220864"
+                      name: NVIDIA GeForce RTX 3090 Ti
+                      uuid: GPU-eca7ce5e-8e7f-2981-3779-7f0a6661a2a8
+                host: DESKTOP-CFH1CQT
+                memory:
+                    total: "274711601152"
+                os: Windows-11-10.0.26100-SP0
+                program: -m src.models.train_model
+                python: CPython 3.13.7
+                root: D:\AI_PROJECTS\alpha-factory
+                startedAt: "2025-10-20T20:20:21.464632Z"
+                writerId: 5e4gz1tmvy8n67i6we75qnzh682flx2l
+        m: []
+        python_version: 3.13.7
+        t:
+            "3":
+                - 2
+                - 19
+            "4": 3.13.7
+            "5": 0.22.2
+            "8":
+                - 3
+            "10":
+                - 21
+            "12": 0.22.2
+            "13": windows-amd64
+learning_rate:
+    value: 0.01

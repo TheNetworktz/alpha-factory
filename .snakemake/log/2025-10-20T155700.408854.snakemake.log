@@ -1,0 +1,46 @@
+Assuming unrestricted shared filesystem usage.
+host: DESKTOP-CFH1CQT
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                   count
+------------------  -------
+all                       1
+run_backtest              1
+synthesize_dataset        1
+train_model               1
+total                     4
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 15:57:00 2025]
+localrule synthesize_dataset:
+    output: data/processed/master_m15_features.csv
+    jobid: 3
+    reason: Missing output files: data/processed/master_m15_features.csv
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+RuleException:
+CalledProcessError in file "D:\AI_PROJECTS\alpha-factory\Snakefile", line 13:
+Command 'python src/data/make_dataset.py' returned non-zero exit status 1.
+[Mon Oct 20 15:57:01 2025]
+Error in rule synthesize_dataset:
+    message: None
+    jobid: 3
+    output: data/processed/master_m15_features.csv
+    shell:
+        python src/data/make_dataset.py
+        (command exited with non-zero exit code)
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look below for error messages
+[Mon Oct 20 15:57:01 2025]
+Error in rule synthesize_dataset:
+    message: None
+    jobid: 3
+    output: data/processed/master_m15_features.csv
+    shell:
+        python src/data/make_dataset.py
+        (command exited with non-zero exit code)
+Complete log(s): D:\AI_PROJECTS\alpha-factory\.snakemake\log\2025-10-20T155700.408854.snakemake.log
+WorkflowError:
+At least one job did not complete successfully.

@@ -76,20 +76,23 @@ def calculate_time_based_liquidity(df: pd.DataFrame, timeframe: str) -> pd.DataF
     df_daily['PDH'] = df_daily['high'].shift(1)
     df_daily['PDL'] = df_daily['low'].shift(1)
 
-    df_with_date = df.copy()
-    df_with_date['Date'] = df_with_date.index.normalize()
-    
-    df_daily_to_merge = df_daily[['PDH', 'PDL']].copy()
-    df_daily_to_merge['Date'] = df_daily_to_merge.index.normalize()
-
-    merged_df = pd.merge(df_with_date, df_daily_to_merge, on='Date', how='left')
-    merged_df.set_index(df_with_date.index, inplace=True)
+    pdh_map = pd.Series(df_daily['PDH'].values, index=df_daily.index.date)
+    pdl_map = pd.Series(df_daily['PDL'].values, index=df_daily.index.date)
 
     df_final = df.copy()
-    df_final[f'f_{timeframe}_pdh'] = merged_df['PDH']
-    df_final[f'f_{timeframe}_pdl'] = merged_df['PDL']
+    df_final['date_key'] = df_final.index.date
 
+    df_final[f'f_{timeframe}_pdh'] = df_final['date_key'].map(pdh_map)
+    df_final[f'f_{timeframe}_pdl'] = df_final['date_key'].map(pdl_map)
+
+    df_final.drop(columns=['date_key'], inplace=True)
+
+    # --- THIS IS THE CRITICAL FIX ---
+    # FORWARD-FILL FIRST to handle weekends/holidays
+    df_final.fillna(method='ffill', inplace=True)
+    # THEN fill any remaining NaNs (like the very first day) with 0
     df_final.fillna(0, inplace=True)
+    # ---
 
     return df_final
 
@@ -105,9 +108,6 @@ def find_htf_pois(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
         print(f"    ! Warning: POI detection for timeframe '{timeframe}' not yet implemented. Skipping.")
         return df
 
-    # --- THIS IS THE FIX ---
-    # The filenames from yfinance use '1h' and '1d', but our parameters are 'h1' and 'd1'.
-    # This logic corrects the filename before trying to open it.
     htf_filename = timeframe.lower()
     if htf_filename == "h1":
         htf_filename = "1h"
@@ -123,40 +123,32 @@ def find_htf_pois(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
     df_htf.columns = [col.lower() for col in df_htf.columns]
     df_htf.index = pd.to_datetime(df_htf.index, utc=True)
 
-    df_htf['prev_low'] = df_htf['low'].shift(1)
-    df_htf['next_high'] = df_htf['high'].shift(-1)
     df_htf['prev_high'] = df_htf['high'].shift(1)
     df_htf['next_low'] = df_htf['low'].shift(-1)
 
-    is_bullish_fvg = df_htf['prev_low'] < df_htf['next_high']
-    is_bearish_fvg = df_htf['prev_high'] > df_htf['next_low']
+    is_bullish_fvg = df_htf['low'] > df_htf['prev_high']
+    df_htf['bull_fvg_top'] = np.where(is_bullish_fvg, df_htf['low'], np.nan)
+    df_htf['bull_fvg_bottom'] = np.where(is_bullish_fvg, df_htf['prev_high'], np.nan)
 
-    df_htf['bull_fvg_top'] = df_htf['prev_low']
-    df_htf['bull_fvg_bottom'] = df_htf['next_high']
-    df_htf['bear_fvg_top'] = df_htf['prev_high']
-    df_htf['bear_fvg_bottom'] = df_htf['next_low']
+    is_bearish_fvg = df_htf['high'] < df_htf['next_low']
+    df_htf['bear_fvg_top'] = np.where(is_bearish_fvg, df_htf['next_low'], np.nan)
+    df_htf['bear_fvg_bottom'] = np.where(is_bearish_fvg, df_htf['high'], np.nan)
+
+    fvg_cols = ['bull_fvg_top', 'bull_fvg_bottom', 'bear_fvg_top', 'bear_fvg_bottom']
+    df_htf[fvg_cols] = df_htf[fvg_cols].ffill()
 
     merged_df = pd.merge_asof(
         df.sort_index(),
-        df_htf[['bull_fvg_top', 'bull_fvg_bottom', 'bear_fvg_top', 'bear_fvg_bottom']].sort_index(),
+        df_htf[fvg_cols].sort_index(),
         left_index=True,
         right_index=True,
         direction='backward'
     )
 
-    inside_bullish_fvg = (
-        (merged_df['low'] < merged_df['bull_fvg_top']) &
-        (merged_df['high'] > merged_df['bull_fvg_bottom'])
-    )
-    inside_bearish_fvg = (
-        (merged_df['low'] < merged_df['bear_fvg_top']) &
-        (merged_df['high'] > merged_df['bear_fvg_bottom'])
-    )
+    inside_bullish_fvg = (merged_df['low'] < merged_df['bull_fvg_top']) & (merged_df['high'] > merged_df['bull_fvg_bottom'])
+    inside_bearish_fvg = (merged_df['low'] < merged_df['bear_fvg_top']) & (merged_df['high'] > merged_df['bear_fvg_bottom'])
 
-    conditions = [
-        inside_bullish_fvg,
-        inside_bearish_fvg
-    ]
+    conditions = [inside_bullish_fvg, inside_bearish_fvg]
     choices = [1, -1]
     merged_df[f'f_{timeframe}_in_fvg'] = np.select(conditions, choices, default=0)
 

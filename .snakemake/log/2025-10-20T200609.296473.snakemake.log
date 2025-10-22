@@ -1,0 +1,23 @@
+Assuming unrestricted shared filesystem usage.
+host: DESKTOP-CFH1CQT
+Building DAG of jobs...
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job                   count
+------------------  -------
+synthesize_dataset        1
+total                     1
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Oct 20 20:06:09 2025]
+localrule synthesize_dataset:
+    output: data/processed/master_m15_features.csv
+    jobid: 0
+    reason: Forced execution
+    resources: tmpdir=C:\Users\Socce\AppData\Local\Temp
+[Mon Oct 20 20:06:12 2025]
+Finished jobid: 0 (Rule: synthesize_dataset)
+1 of 1 steps (100%) done
+Complete log(s): D:\AI_PROJECTS\alpha-factory\.snakemake\log\2025-10-20T200609.296473.snakemake.log
